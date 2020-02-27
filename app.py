@@ -3,6 +3,8 @@ from flask_marshmallow import Marshmallow
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token
 import os
+from flask_mail import Mail, Message
+
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -10,6 +12,9 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'planets.db')
 app.config['JWT_SECRET_KEY'] = 'super-simple' 
+app.config['MAIL_SERVER'] = 'smtp.mailtrap.io'
+app.config['MAIL_USERNAME'] = os.environ('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.environ('MAIL_PASSWORD')
 
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
