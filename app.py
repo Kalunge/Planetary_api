@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 from flask_marshmallow import Marshmallow
 from flask_sqlalchemy import SQLAlchemy
+from flask_jwt_extended import JWTManager, jwt_required, create_access_token
 import os
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -8,9 +9,12 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'planets.db')
+app.config['JWT_SECRET_KEY'] = 'super-simple' 
 
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
+jwt = JWTManager(app)
+
 
 
 from models.Planet import Planet, PlanetsSchema, planet_schema, planets_schema
@@ -91,7 +95,22 @@ def register():
         return jsonify(message = 'User created succefully'), 201
         
 
-    
+@app.route('/login', methods = ['POST'])
+def login():
+    if request.is_json:
+        email = request.json['email']
+        password = request.json['password']
+    else:
+        email = request.form['email']
+        password = request.form['password']
+
+    test = User.query.filter_by(email=email, password=password).first()
+    if test:
+        access_token = create_access_token(identity=email)
+        return jsonify(message='login successful', access_token=access_token)
+    else:
+        return jsonify(message='You entered a wrong password/email'), 401
+
 
 
     
