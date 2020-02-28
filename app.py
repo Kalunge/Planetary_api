@@ -130,5 +130,39 @@ def retrieve_password(email:str):
         return jsonify(message='that email doesnt exist'), 401
 
 
+@app.route('/planet_details/<int:planet_id>')
+def planet_details(planet_id: int):
+    planet = Planet.query.filter_by(planet_id=planet_id).first()
+    if planet:
+        result = planet_schema.dump(planet)
+        return jsonify(result), 200
+    else:
+        return jsonify(message='that planet does not exist'), 404
 
-    
+
+
+@app.route('/add_planet', methods=['POST'])
+def add_planet():
+    planet_name = request.form['planet_name']
+    test = Planet.query.filter_by(planet_name = planet_name).first()
+
+    if test:
+        return jsonify(message='A planet with that name already exists'), 409
+    else:
+        home_star = request.form['home_star']
+        distance = float(request.form['distance'])
+        radius = float(request.form['radius'])
+        mass = float(request.form['mass'])
+
+        new_planet = Planet(planet_name=planet_name,
+        home_star = home_star,
+        distance = distance,
+        radius = radius,
+        mass = mass)
+
+        db.session.add(new_planet)
+        db.session.commit()
+
+        return jsonify(message='new planet added successfully'), 201
+
+        
